@@ -239,24 +239,44 @@ export class CalderoComponent implements OnInit, OnDestroy {
   // - giratiempoRehacer(): Avanza el índice y restaura una copia de ese estado.
   // =========================================================================
   guardarEstadoGiratiempo(): void {
-    // TODO: Reto 6 - Implementar guardado inmutable en el historial
+    // Si venimos de un Undo, lo que estaba "adelante" ya no sirve.
+    this.historialPasos = this.historialPasos.slice(0, this.indiceHistorial + 1);
+
+    const copia = this.pociones.map(p => ({
+      ...p,
+      ingredientes: [...p.ingredientes]
+    }));
+
+    this.historialPasos.push(copia);
+    this.indiceHistorial = this.historialPasos.length - 1;
   }
 
   puedeDeshacer(): boolean {
-    // TODO: Reto 6 - Retornar si es posible retroceder
-    return false;
+    return this.indiceHistorial > 0;
   }
 
   puedeRehacer(): boolean {
-    // TODO: Reto 6 - Retornar si es posible avanzar
-    return false;
+    return this.indiceHistorial < this.historialPasos.length - 1;
   }
 
   giratiempoDeshacer(): void {
-    // TODO: Reto 6 - Revertir al estado anterior
+    if (!this.puedeDeshacer()) return;
+
+    this.indiceHistorial--;
+    this.restaurarEstado(this.historialPasos[this.indiceHistorial]);
   }
 
   giratiempoRehacer(): void {
-    // TODO: Reto 6 - Avanzar al estado siguiente
+    if (!this.puedeRehacer()) return;
+
+    this.indiceHistorial++;
+    this.restaurarEstado(this.historialPasos[this.indiceHistorial]);
+  }
+
+  private restaurarEstado(estado: Pocion[]): void {
+    this.pociones = estado.map(p => ({
+      ...p,
+      ingredientes: [...p.ingredientes]
+    }));
   }
 }
